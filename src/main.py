@@ -2,11 +2,11 @@ from pathlib import Path
 import os
 from typing import List
 
-from src.threads_downloader.config import DL_WORKERS, DOWNLOAD_FOLDER, IS_HEADLESS
-from src.threads_downloader.driver import build_stealth_driver
-from src.threads_downloader.utils import load_cookies, save_cookies
-from src.threads_downloader.scraper import collect_all_media, get_author_name
-from src.threads_downloader.downloader import batch_download
+from threads_downloader.config import DL_WORKERS, DOWNLOAD_FOLDER, IS_HEADLESS
+from threads_downloader.driver import build_stealth_driver
+from threads_downloader.utils import load_cookies, save_cookies
+from threads_downloader.scraper import collect_all_media, get_author_name
+from threads_downloader.downloader import batch_download
 
 def ensure_cookies(path: str) -> None:
     """Create a cookies file when it does not yet exist.

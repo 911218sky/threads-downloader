@@ -12,6 +12,10 @@ script/
 downloads/
 *.pkl
 
+# egg-info
+*.egg-info/
+*.egg-info
+
 # OS noise
 .DS_Store
 Thumbs.db

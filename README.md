@@ -17,6 +17,7 @@ A powerful Python tool for downloading images and videos from Instagram Threads 
 ```bash
 git clone https://github.com/911218sky/threads-downloader.git
 cd threads-downloader
+pip install -r requirements.txt
 pip install -e .
 ```
 
@@ -24,6 +25,9 @@ pip install -e .
 ```bash
 # Download from a single profile
 threads-downloader --profile https://www.threads.com/@username
+
+# Example: Download media from multiple Threads profiles
+threads-downloader --profile https://www.threads.net/@alice https://www.threads.net/@bob https://www.threads.net/@charlie
 
 # Download from multiple profiles
 threads-downloader --profile https://www.threads.com/@user1 https://www.threads.com/@user2
