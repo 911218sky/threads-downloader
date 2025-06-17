@@ -34,7 +34,7 @@ def load_pickle(file_path: str) -> Any:
 
 
 def normalize_url(url: str) -> str:
-    """Strip query / fragment parts and return the basename of *url*."""
+    """Strip query / fragment parts and return the basename of the URL."""
     return os.path.basename(urlparse(url).path)
 
 
