@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "threads-downloader"
+version = "0.1.0"
+description = "Download media from Threads profiles"
+readme = "README.md"
+requires-python = ">=3.9"
+dynamic = ["dependencies"]
+
+# Editable src-layout
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# Single source of truth for requirements
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+# Console-script entry point
+[project.scripts]
+threads-downloader = "threads_downloader.cli:main"

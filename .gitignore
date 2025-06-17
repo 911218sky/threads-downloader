@@ -1,0 +1,17 @@
+# virtual env
+venv/
+__pycache__/
+
+# test
+test/
+
+# script
+script/
+
+# downloads & cache
+downloads/
+*.pkl
+
+# OS noise
+.DS_Store
+Thumbs.db
