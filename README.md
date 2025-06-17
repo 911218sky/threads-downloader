@@ -21,16 +21,15 @@ pip install -e .
 ```
 
 ### Basic Usage
-
 ```bash
 # Download from a single profile
-python -m threads_downloader --profile https://www.threads.com/@username
+threads-downloader --profile https://www.threads.com/@username
 
 # Download from multiple profiles
-python -m threads_downloader --profile https://www.threads.com/@user1 https://www.threads.com/@user2
+threads-downloader --profile https://www.threads.com/@user1 https://www.threads.com/@user2
 
 # Custom output directory with more workers
-python -m threads_downloader --profile https://www.threads.com/@username --out ./my_downloads --workers 8
+threads-downloader --profile https://www.threads.com/@username --out ./my_downloads --workers 8
 ```
 
 ## 📋 Command Line Options
@@ -57,22 +56,22 @@ After you have finished logging in, return to this terminal and press Enter to a
 
 ### Headless Mode (Default)
 ```bash
-python -m threads_downloader --profile https://www.threads.com/@username --headless
+threads-downloader --profile https://www.threads.com/@username --headless
 ```
 
 ### Visible Browser (for debugging)
 ```bash
-python -m threads_downloader --profile https://www.threads.com/@username --no-headless
+threads-downloader --profile https://www.threads.com/@username --no-headless
 ```
 
 ### High-Performance Download
 ```bash
-python -m threads_downloader --profile https://www.threads.com/@username --workers 16
+threads-downloader --profile https://www.threads.com/@username --workers 16
 ```
 
 ### Custom Cookie Location
 ```bash
-python -m threads_downloader --profile https://www.threads.com/@username --cookies_path ./custom_cookies.pkl
+threads-downloader --profile https://www.threads.com/@username --cookies_path ./custom_cookies.pkl
 ```
 
 ## ⚠️ Important Notes
