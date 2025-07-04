@@ -1,8 +1,19 @@
 @echo off
 setlocal enabledelayedexpansion
 
-REM Initialize conda for shell usage and activate the environment
-call conda activate ./venv
+REM Check for venv directory
+if exist "venv" (
+    call conda activate ./venv
+) else (
+    REM Check for threads-downloader.exe
+    if exist "threads-downloader.exe" (
+        REM Proceed without activating environment
+    ) else (
+        echo Neither 'venv' directory nor 'threads-downloader.exe' found. Exiting.
+        pause
+        exit /b 1
+    )
+)
 
 set "urls="
 

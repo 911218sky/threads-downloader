@@ -1,8 +1,14 @@
 #!/bin/bash
 
-# Initialize conda for shell usage
-source "$(conda info --base)/etc/profile.d/conda.sh"
-conda activate ./venv
+# Check for venv directory and activate if present
+if [ -d "venv" ]; then
+    source "$(conda info --base)/etc/profile.d/conda.sh"
+    conda activate ./venv
+elif ! command -v threads-downloader >/dev/null 2>&1; then
+    echo "Neither 'venv' directory nor 'threads-downloader' command found. Exiting."
+    read -p "Press Enter to exit."
+    exit 1
+fi
 
 urls=()
 
@@ -14,7 +20,6 @@ while true; do
     urls+=("$url")
 done
 
-# Run the threads-downloader command with all collected URLs
 threads-downloader --profile "${urls[@]}"
 
 echo "Download completed. Press Enter to exit."
