@@ -18,6 +18,7 @@ A powerful Python tool for downloading images and videos from Instagram Threads 
 git clone https://github.com/911218sky/threads-downloader.git
 cd threads-downloader
 conda create -p venv python=3.12
+conda activate ./venv
 pip install -r requirements.txt
 pip install -e .
 ```
