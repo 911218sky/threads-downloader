@@ -1,4 +1,4 @@
-SCROLL_PAUSE: float = 1.2
+SCROLL_PAUSE: float = 1.0
 DL_WORKERS: int = 3
 DOWNLOAD_FOLDER: str = "./downloads"
 
