@@ -17,7 +17,7 @@ def ensure_cookies(path: str) -> None:
     if not os.path.exists(path):
         print("First run detected – opening a browser for login …")
         driver = build_stealth_driver(headless=False)
-        driver.get("https://www.threads.net/")
+        driver.get("https://www.threads.com/")
         input("After logging in, press Enter to save cookies … ")
         save_cookies(driver, path)
         driver.quit()
@@ -47,7 +47,7 @@ def download_profiles(
         Path to the cookies file that should be loaded before scraping.
     """
     driver = build_stealth_driver(headless=headless)
-    driver.get("https://www.threads.net/")
+    driver.get("https://www.threads.com/")
     load_cookies(driver, cookie_path)
 
     for url in urls:
@@ -95,8 +95,8 @@ def ask_int(prompt: str, default: int) -> int:
 
 
 def normalize_threads_url(url: str) -> str:
-    """Normalize Threads URL to use threads.net domain."""
-    return url.replace("threads.com", "threads.net")
+    """Normalize Threads URL to use threads.com domain."""
+    return url.replace("threads.net", "threads.com")
 
 
 def main() -> None:

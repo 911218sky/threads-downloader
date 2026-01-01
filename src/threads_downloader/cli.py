@@ -15,15 +15,15 @@ from .utils import load_cookies, save_cookies
 def get_cookies(save_path: str = "cookies.pkl") -> None:
     print("Please log in to Threads in the newly opened browser window. After you have finished logging in, return to this terminal and press Enter to automatically save your cookies.")
     drv = build_stealth_driver(headless=False)
-    drv.get("https://www.threads.net/")
+    drv.get("https://www.threads.com/")
     input("After logging in, press Enter to save cookies ...")
     save_cookies(drv, save_path)
     print("Cookies saved to", save_path)
     drv.quit()
 
 def normalize_threads_url(url: str) -> str:
-    """Normalize Threads URL to use threads.net domain."""
-    return url.replace("threads.com", "threads.net")
+    """Normalize Threads URL to use threads.com domain."""
+    return url.replace("threads.net", "threads.com")
 
 
 def main() -> None:
