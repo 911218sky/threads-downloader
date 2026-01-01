@@ -4,9 +4,9 @@
 
 | Platform | Interactive Mode (Double-click) | CLI Mode |
 |----------|--------------------------------|----------|
-| Windows | `threads-downloader-${VERSION}-windows-x64.exe` | `threads-downloader-cli-${VERSION}-windows-x64.exe` |
-| macOS | `threads-downloader-${VERSION}-macos-x64` | `threads-downloader-cli-${VERSION}-macos-x64` |
-| Linux | `threads-downloader-${VERSION}-linux-x64` | `threads-downloader-cli-${VERSION}-linux-x64` |
+| Windows | [threads-downloader-${VERSION}-windows-x64.exe](https://github.com/911218sky/threads-downloader/releases/download/v${VERSION}/threads-downloader-${VERSION}-windows-x64.exe) | [threads-downloader-cli-${VERSION}-windows-x64.exe](https://github.com/911218sky/threads-downloader/releases/download/v${VERSION}/threads-downloader-cli-${VERSION}-windows-x64.exe) |
+| macOS | [threads-downloader-${VERSION}-macos-x64](https://github.com/911218sky/threads-downloader/releases/download/v${VERSION}/threads-downloader-${VERSION}-macos-x64) | [threads-downloader-cli-${VERSION}-macos-x64](https://github.com/911218sky/threads-downloader/releases/download/v${VERSION}/threads-downloader-cli-${VERSION}-macos-x64) |
+| Linux | [threads-downloader-${VERSION}-linux-x64](https://github.com/911218sky/threads-downloader/releases/download/v${VERSION}/threads-downloader-${VERSION}-linux-x64) | [threads-downloader-cli-${VERSION}-linux-x64](https://github.com/911218sky/threads-downloader/releases/download/v${VERSION}/threads-downloader-cli-${VERSION}-linux-x64) |
 
 - **threads-downloader**: Interactive mode - double-click to run, follow prompts
 - **threads-downloader-cli**: Command line mode - use with arguments
