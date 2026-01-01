@@ -43,11 +43,23 @@ jobs:
         shell: bash
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
-      - name: Build CLI executable
+      - name: Build CLI executable (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          pyinstaller --onefile --noupx --name threads-downloader-cli --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest src/threads_downloader/cli.py
+
+      - name: Build GUI executable (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          pyinstaller --onefile --noupx --name threads-downloader --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest src/main.py
+
+      - name: Build CLI executable (Linux/macOS)
+        if: runner.os != 'Windows'
         run: |
           pyinstaller --onefile --strip --noupx --name threads-downloader-cli --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest src/threads_downloader/cli.py
 
-      - name: Build GUI executable
+      - name: Build GUI executable (Linux/macOS)
+        if: runner.os != 'Windows'
         run: |
           pyinstaller --onefile --strip --noupx --name threads-downloader --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest src/main.py
 
