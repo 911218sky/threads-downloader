@@ -64,8 +64,8 @@ jobs:
         shell: pwsh
         run: |
           choco install upx -y
-          upx --best --lzma dist/threads-downloader-cli.exe
-          upx --best --lzma dist/threads-downloader.exe
+          upx --force --best --lzma dist/threads-downloader-cli.exe
+          upx --force --best --lzma dist/threads-downloader.exe
 
       - name: Rename artifacts
         shell: bash

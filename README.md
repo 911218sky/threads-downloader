@@ -39,11 +39,11 @@ cd threads-downloader
 
 # Automatic setup (recommended)
 # Windows
-scripts\setup.bat
+setup.bat
 
 # macOS / Linux
-chmod +x scripts/setup.sh
-./scripts/setup.sh
+chmod +x setup.sh
+./setup.sh
 ```
 
 The setup script will:
@@ -135,10 +135,10 @@ threads-downloader/
 │       ├── scraper.py         # Media scraping
 │       └── utils.py           # Utilities
 ├── scripts/
-│   ├── setup.bat              # Windows setup script
-│   ├── setup.sh               # macOS/Linux setup script
 │   ├── release.bat            # Windows release script
 │   └── release.sh             # macOS/Linux release script
+├── setup.bat                  # Windows setup script
+├── setup.sh                   # macOS/Linux setup script
 ├── .github/
 │   ├── workflows/
 │   │   └── build-release.yml  # CI/CD workflow
