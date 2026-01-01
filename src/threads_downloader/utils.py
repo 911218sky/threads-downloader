@@ -21,9 +21,9 @@ def load_cookies(driver, file_path: str = "cookies.pkl") -> None:
     for ck in cookies:
         try:
             driver.add_cookie(ck)
-        except Exception:
+        except Exception as e:
             # Skip invalid cookies (domain mismatch, expired, etc.)
-            pass
+            print(f"[Warning] Skipped cookie '{ck.get('name', 'unknown')}': {e}")
     
     driver.refresh()
 
