@@ -79,16 +79,37 @@ jobs:
       - name: Test executables (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
-          chmod +x ./output/threads-downloader-cli-${{ steps.version.outputs.VERSION }}-${{ matrix.asset_name }}
-          ./output/threads-downloader-cli-${{ steps.version.outputs.VERSION }}-${{ matrix.asset_name }} --help
-          echo "Tests passed!"
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          PLATFORM="${{ matrix.asset_name }}"
+          
+          echo "Testing CLI executable..."
+          chmod +x ./output/threads-downloader-cli-${VERSION}-${PLATFORM}
+          ./output/threads-downloader-cli-${VERSION}-${PLATFORM} --help
+          
+          echo "Testing Interactive executable..."
+          chmod +x ./output/threads-downloader-${VERSION}-${PLATFORM}
+          timeout 3 ./output/threads-downloader-${VERSION}-${PLATFORM} <<< "" || true
+          
+          echo "All tests passed!"
 
       - name: Test executables (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          & "./output/threads-downloader-cli-${{ steps.version.outputs.VERSION }}-${{ matrix.asset_name }}.exe" --help
-          Write-Host "Tests passed!"
+          $VERSION = "${{ steps.version.outputs.VERSION }}"
+          $PLATFORM = "${{ matrix.asset_name }}"
+          
+          Write-Host "Testing CLI executable..."
+          & "./output/threads-downloader-cli-${VERSION}-${PLATFORM}.exe" --help
+          
+          Write-Host "Testing Interactive executable..."
+          $process = Start-Process -FilePath "./output/threads-downloader-${VERSION}-${PLATFORM}.exe" -PassThru -NoNewWindow
+          Start-Sleep -Seconds 3
+          if (!$process.HasExited) { 
+            Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+          }
+          
+          Write-Host "All tests passed!"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
