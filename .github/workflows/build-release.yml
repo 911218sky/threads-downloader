@@ -49,14 +49,14 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          pyinstaller --onefile --noupx --name threads-downloader-cli --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest --paths src -c -y src/cli_entry.py
-          pyinstaller --onefile --noupx --name threads-downloader --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest --paths src -c -y src/main.py
+          pyinstaller --onefile --noupx --name threads-downloader-cli --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest --paths src --collect-data selenium_stealth -c -y src/cli_entry.py
+          pyinstaller --onefile --noupx --name threads-downloader --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest --paths src --collect-data selenium_stealth -c -y src/main.py
 
       - name: Build executables (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
-          pyinstaller --onefile --strip --noupx --name threads-downloader-cli --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest --paths src -c -y src/cli_entry.py
-          pyinstaller --onefile --strip --noupx --name threads-downloader --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest --paths src -c -y src/main.py
+          pyinstaller --onefile --strip --noupx --name threads-downloader-cli --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest --paths src --collect-data selenium_stealth -c -y src/cli_entry.py
+          pyinstaller --onefile --strip --noupx --name threads-downloader --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest --paths src --collect-data selenium_stealth -c -y src/main.py
 
       - name: Compress with UPX (Linux/macOS)
         if: runner.os != 'Windows'
