@@ -19,15 +19,7 @@ def get_author_name(drv: WebDriver) -> str:
 def _extract_media_src(
     block: WebElement, group: int
 ) -> Tuple[Set[MediaWithGroup], Set[MediaWithGroup]]:
-    """Pull ``src`` attributes for img / video tags inside one post block.
-
-    Args:
-        block: The WebElement representing a single Threads post.
-        group: Index representing the post order; used in filenames.
-
-    Returns:
-        Two sets containing image URLs and video URLs respectively.
-    """
+    """Pull ``src`` attributes for img / video tags inside one post block."""
     img_xpath = './/*[@referrerpolicy="origin-when-cross-origin"]'
     vid_css = "[playsinline]"
     try:
@@ -41,23 +33,10 @@ def _extract_media_src(
 def collect_all_media(
     drv: WebDriver, pause: float = SCROLL_PAUSE, max_no_change: int = 3
 ) -> List[MediaWithGroup]:
-    """Scroll until no new content loads, aggregating every unique media URL.
-
-    Args:
-        drv: An already navigated Selenium driver.
-        pause: Seconds to wait between scrolls.
-        max_no_change: Stop after this many consecutive scrolls yield no
-            new content.
-
-    Returns:
-        A list of ``(url, group_index)`` tuples ready for download.
-    """
-    import random
-    
+    """Scroll until no new content loads, aggregating every unique media URL."""
     seen_urls: Set[str] = set()
     media: List[MediaWithGroup] = []
-    last_media_count = 0
-    last_scroll_pos = 0
+    last_height = drv.execute_script("return document.body.scrollHeight")
     no_change = 0
     group = 0
 
@@ -86,41 +65,18 @@ def collect_all_media(
             if collected_any:
                 group += 1
 
-        # Human-like scroll: random distance between 70-90% of viewport
-        scroll_percent = random.uniform(0.7, 0.9)
-        drv.execute_script(f"""
-            window.scrollBy({{
-                top: window.innerHeight * {scroll_percent},
-                behavior: 'smooth'
-            }});
-        """)
-        time.sleep(pause + random.uniform(-0.2, 0.3))
+        # Fast scroll to bottom
+        drv.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(pause)
 
-        current_media_count = len(media)
-        current_scroll_pos = drv.execute_script("return window.pageYOffset")
-        
-        # Multi-condition end detection:
-        # 1. Check if at bottom of page
-        scroll_top = drv.execute_script("return window.pageYOffset + window.innerHeight")
-        scroll_height = drv.execute_script("return document.body.scrollHeight")
-        at_bottom = scroll_top >= scroll_height - 10
-        
-        # 2. Check if scroll position stopped changing (can't scroll further)
-        scroll_stuck = current_scroll_pos == last_scroll_pos
-        
-        # 3. Check if no new media found
-        no_new_media = current_media_count == last_media_count
-        
-        # Increment no_change only when multiple conditions met
-        if no_new_media and (at_bottom or scroll_stuck):
+        new_height = drv.execute_script("return document.body.scrollHeight")
+        if new_height == last_height:
             no_change += 1
             if no_change >= max_no_change:
                 break
         else:
+            last_height = new_height
             no_change = 0
-        
-        last_media_count = current_media_count
-        last_scroll_pos = current_scroll_pos
 
         print(f"\rCollected {len(media)} media", end="", flush=True)
 
