@@ -38,16 +38,6 @@ def _extract_media_src(
     return imgs, vids
 
 
-def _check_end_of_content(drv: WebDriver) -> bool:
-    """Check if page shows 'no more content' indicator."""
-    end_texts = ['沒有更多', '没有更多', 'No more', "You've seen all", '已經看完', '已经看完']
-    try:
-        page_text = drv.find_element(By.TAG_NAME, "body").text
-        return any(text in page_text for text in end_texts)
-    except:
-        return False
-
-
 def collect_all_media(
     drv: WebDriver, pause: float = SCROLL_PAUSE, max_no_change: int = 3
 ) -> List[MediaWithGroup]:
@@ -120,14 +110,6 @@ def collect_all_media(
         
         # 3. Check if no new media found
         no_new_media = current_media_count == last_media_count
-        
-        # 4. Check for "no more content" UI indicator
-        end_marker_found = _check_end_of_content(drv)
-        
-        # End immediately if UI says no more content
-        if end_marker_found and no_new_media:
-            print(f"\rCollected {len(media)} media (end of content)", end="", flush=True)
-            break
         
         # Increment no_change only when multiple conditions met
         if no_new_media and (at_bottom or scroll_stuck):
