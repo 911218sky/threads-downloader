@@ -38,8 +38,18 @@ def _extract_media_src(
     return imgs, vids
 
 
+def _check_end_of_content(drv: WebDriver) -> bool:
+    """Check if page shows 'no more content' indicator."""
+    end_texts = ['沒有更多', '没有更多', 'No more', "You've seen all", '已經看完', '已经看完']
+    try:
+        page_text = drv.find_element(By.TAG_NAME, "body").text
+        return any(text in page_text for text in end_texts)
+    except:
+        return False
+
+
 def collect_all_media(
-    drv: WebDriver, pause: float = SCROLL_PAUSE, max_no_change: int = 5
+    drv: WebDriver, pause: float = SCROLL_PAUSE, max_no_change: int = 3
 ) -> List[MediaWithGroup]:
     """Scroll until no new content loads, aggregating every unique media URL.
 
@@ -52,9 +62,12 @@ def collect_all_media(
     Returns:
         A list of ``(url, group_index)`` tuples ready for download.
     """
+    import random
+    
     seen_urls: Set[str] = set()
     media: List[MediaWithGroup] = []
     last_media_count = 0
+    last_scroll_pos = 0
     no_change = 0
     group = 0
 
@@ -84,7 +97,6 @@ def collect_all_media(
                 group += 1
 
         # Human-like scroll: random distance between 70-90% of viewport
-        import random
         scroll_percent = random.uniform(0.7, 0.9)
         drv.execute_script(f"""
             window.scrollBy({{
@@ -92,24 +104,41 @@ def collect_all_media(
                 behavior: 'smooth'
             }});
         """)
-        time.sleep(pause + random.uniform(-0.2, 0.3))  # Randomize pause too
+        time.sleep(pause + random.uniform(-0.2, 0.3))
 
         current_media_count = len(media)
+        current_scroll_pos = drv.execute_script("return window.pageYOffset")
         
-        # Check if we're at the bottom AND no new media found
+        # Multi-condition end detection:
+        # 1. Check if at bottom of page
         scroll_top = drv.execute_script("return window.pageYOffset + window.innerHeight")
         scroll_height = drv.execute_script("return document.body.scrollHeight")
         at_bottom = scroll_top >= scroll_height - 10
         
-        if current_media_count == last_media_count:
-            if at_bottom:
-                no_change += 1
-                if no_change >= max_no_change:
-                    break
+        # 2. Check if scroll position stopped changing (can't scroll further)
+        scroll_stuck = current_scroll_pos == last_scroll_pos
+        
+        # 3. Check if no new media found
+        no_new_media = current_media_count == last_media_count
+        
+        # 4. Check for "no more content" UI indicator
+        end_marker_found = _check_end_of_content(drv)
+        
+        # End immediately if UI says no more content
+        if end_marker_found and no_new_media:
+            print(f"\rCollected {len(media)} media (end of content)", end="", flush=True)
+            break
+        
+        # Increment no_change only when multiple conditions met
+        if no_new_media and (at_bottom or scroll_stuck):
+            no_change += 1
+            if no_change >= max_no_change:
+                break
         else:
             no_change = 0
         
         last_media_count = current_media_count
+        last_scroll_pos = current_scroll_pos
 
         print(f"\rCollected {len(media)} media", end="", flush=True)
 
