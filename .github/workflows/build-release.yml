@@ -82,6 +82,25 @@ jobs:
           mv "dist/threads-downloader-cli${EXT}" "output/threads-downloader-cli-${VERSION}-${PLATFORM}${EXT}"
           mv "dist/threads-downloader${EXT}" "output/threads-downloader-${VERSION}-${PLATFORM}${EXT}"
 
+      - name: Test executables (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          echo "Testing CLI executable..."
+          chmod +x ./output/threads-downloader-cli-${{ steps.version.outputs.VERSION }}-${{ matrix.asset_name }}
+          ./output/threads-downloader-cli-${{ steps.version.outputs.VERSION }}-${{ matrix.asset_name }} --help
+          
+          echo "All tests passed!"
+
+      - name: Test executables (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Write-Host "Testing CLI executable..."
+          & "./output/threads-downloader-cli-${{ steps.version.outputs.VERSION }}-${{ matrix.asset_name }}.exe" --help
+          
+          Write-Host "All tests passed!"
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
