@@ -1,0 +1,125 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            asset_name: windows-x64
+            ext: .exe
+          - os: macos-latest
+            asset_name: macos-x64
+            ext: ""
+          - os: ubuntu-latest
+            asset_name: linux-x64
+            ext: ""
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Get version
+        id: version
+        shell: bash
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Build CLI executable
+        run: |
+          pyinstaller --onefile --strip --noupx --name threads-downloader-cli --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest src/threads_downloader/cli.py
+
+      - name: Build GUI executable
+        run: |
+          pyinstaller --onefile --strip --noupx --name threads-downloader --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest src/main.py
+
+      - name: Compress with UPX (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          if command -v upx &> /dev/null; then
+            upx --best --lzma dist/threads-downloader-cli || true
+            upx --best --lzma dist/threads-downloader || true
+          fi
+
+      - name: Install and compress with UPX (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install upx -y
+          upx --best --lzma dist/threads-downloader-cli.exe
+          upx --best --lzma dist/threads-downloader.exe
+
+      - name: Rename artifacts
+        shell: bash
+        run: |
+          mkdir -p output
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          EXT="${{ matrix.ext }}"
+          PLATFORM="${{ matrix.asset_name }}"
+          
+          mv "dist/threads-downloader-cli${EXT}" "output/threads-downloader-cli-${VERSION}-${PLATFORM}${EXT}"
+          mv "dist/threads-downloader${EXT}" "output/threads-downloader-${VERSION}-${PLATFORM}${EXT}"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: threads-downloader-${{ matrix.asset_name }}
+          path: output/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Prepare release files
+        run: |
+          mkdir -p release
+          find artifacts -type f -exec cp {} release/ \;
+          ls -la release/
+
+      - name: Generate release notes
+        run: |
+          sed 's/\${VERSION}/${{ steps.version.outputs.VERSION }}/g' .github/RELEASE_TEMPLATE.md > release_notes.md
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Threads Downloader v${{ steps.version.outputs.VERSION }}
+          files: release/*
+          body_path: release_notes.md
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
