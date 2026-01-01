@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: windows-latest
@@ -31,44 +32,38 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pyinstaller
+          pip install -r requirements.txt pyinstaller
 
       - name: Get version
         id: version
         shell: bash
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
-      - name: Build CLI executable (Windows)
+      - name: Build executables (Windows)
         if: runner.os == 'Windows'
+        shell: pwsh
         run: |
-          pyinstaller --onefile --noupx --name threads-downloader-cli --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest src/threads_downloader/cli.py
+          pyinstaller --onefile --noupx --name threads-downloader-cli --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest src/threads_downloader/cli.py &
+          pyinstaller --onefile --noupx --name threads-downloader --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest src/main.py &
+          Wait-Process -Name pyinstaller -ErrorAction SilentlyContinue
 
-      - name: Build GUI executable (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          pyinstaller --onefile --noupx --name threads-downloader --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest src/main.py
-
-      - name: Build CLI executable (Linux/macOS)
+      - name: Build executables (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
-          pyinstaller --onefile --strip --noupx --name threads-downloader-cli --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest src/threads_downloader/cli.py
+          pyinstaller --onefile --strip --noupx --name threads-downloader-cli --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest src/threads_downloader/cli.py &
+          pyinstaller --onefile --strip --noupx --name threads-downloader --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest src/main.py &
+          wait
 
-      - name: Build GUI executable (Linux/macOS)
-        if: runner.os != 'Windows'
-        run: |
-          pyinstaller --onefile --strip --noupx --name threads-downloader --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest src/main.py
-
-      - name: Compress with UPX (Linux/macOS only)
+      - name: Compress with UPX (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
           if command -v upx &> /dev/null; then
-            upx --best --lzma dist/threads-downloader-cli || true
-            upx --best --lzma dist/threads-downloader || true
+            upx --best --lzma dist/threads-downloader-cli dist/threads-downloader || true
           fi
 
       - name: Rename artifacts
@@ -84,22 +79,17 @@ jobs:
 
       - name: Test executables (Linux/macOS)
         if: runner.os != 'Windows'
-        shell: bash
         run: |
-          echo "Testing CLI executable..."
           chmod +x ./output/threads-downloader-cli-${{ steps.version.outputs.VERSION }}-${{ matrix.asset_name }}
           ./output/threads-downloader-cli-${{ steps.version.outputs.VERSION }}-${{ matrix.asset_name }} --help
-          
-          echo "All tests passed!"
+          echo "Tests passed!"
 
       - name: Test executables (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          Write-Host "Testing CLI executable..."
           & "./output/threads-downloader-cli-${{ steps.version.outputs.VERSION }}-${{ matrix.asset_name }}.exe" --help
-          
-          Write-Host "All tests passed!"
+          Write-Host "Tests passed!"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
