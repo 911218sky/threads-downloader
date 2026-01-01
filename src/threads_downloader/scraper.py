@@ -47,15 +47,14 @@ def collect_all_media(
         drv: An already navigated Selenium driver.
         pause: Seconds to wait between scrolls.
         max_no_change: Stop after this many consecutive scrolls yield no
-            height delta.
+            new content.
 
     Returns:
         A list of ``(url, group_index)`` tuples ready for download.
     """
     seen_urls: Set[str] = set()
-    seen_blocks: Set[str] = set()  # Track processed block identifiers
     media: List[MediaWithGroup] = []
-    last_height = drv.execute_script("return document.body.scrollHeight")
+    last_media_count = 0
     no_change = 0
     group = 0
 
@@ -63,16 +62,6 @@ def collect_all_media(
         blocks = drv.find_elements(By.CLASS_NAME, "x1xmf6yo")
         
         for blk in blocks:
-            # Use block's location as identifier to skip already-processed blocks
-            try:
-                block_id = f"{blk.location['x']}_{blk.location['y']}_{blk.size['width']}"
-            except StaleElementReferenceException:
-                continue
-            
-            if block_id in seen_blocks:
-                continue
-            seen_blocks.add(block_id)
-            
             imgs, vids = _extract_media_src(blk, group)
             collected_any = False
             
@@ -94,25 +83,35 @@ def collect_all_media(
             if collected_any:
                 group += 1
 
-        # Smooth scroll for better content loading
-        drv.execute_script("""
-            window.scrollBy({
-                top: window.innerHeight * 0.8,
+        # Human-like scroll: random distance between 70-90% of viewport
+        import random
+        scroll_percent = random.uniform(0.7, 0.9)
+        drv.execute_script(f"""
+            window.scrollBy({{
+                top: window.innerHeight * {scroll_percent},
                 behavior: 'smooth'
-            });
+            }});
         """)
-        time.sleep(pause)
+        time.sleep(pause + random.uniform(-0.2, 0.3))  # Randomize pause too
 
-        new_height = drv.execute_script("return document.body.scrollHeight")
-        if new_height == last_height:
-            no_change += 1
-            if no_change >= max_no_change:
-                break
+        current_media_count = len(media)
+        
+        # Check if we're at the bottom AND no new media found
+        scroll_top = drv.execute_script("return window.pageYOffset + window.innerHeight")
+        scroll_height = drv.execute_script("return document.body.scrollHeight")
+        at_bottom = scroll_top >= scroll_height - 10
+        
+        if current_media_count == last_media_count:
+            if at_bottom:
+                no_change += 1
+                if no_change >= max_no_change:
+                    break
         else:
-            last_height = new_height
             no_change = 0
+        
+        last_media_count = current_media_count
 
-        print(f"\rCollected {len(media)} media from {len(seen_blocks)} posts", end="", flush=True)
+        print(f"\rCollected {len(media)} media", end="", flush=True)
 
     print()
     return media

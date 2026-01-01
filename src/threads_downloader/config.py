@@ -1,5 +1,5 @@
-SCROLL_PAUSE: float = 1.0
-DL_WORKERS: int = 3
+SCROLL_PAUSE: float = 1.2
+DL_WORKERS: int = 10
 DOWNLOAD_FOLDER: str = "./downloads"
 
 IS_HEADLESS: bool = True
