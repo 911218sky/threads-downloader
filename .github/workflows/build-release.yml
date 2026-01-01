@@ -51,21 +51,13 @@ jobs:
         run: |
           pyinstaller --onefile --strip --noupx --name threads-downloader --exclude-module tkinter --exclude-module matplotlib --exclude-module numpy --exclude-module pandas --exclude-module PIL --exclude-module scipy --exclude-module pytest --exclude-module unittest src/main.py
 
-      - name: Compress with UPX (Linux/macOS)
+      - name: Compress with UPX (Linux/macOS only)
         if: runner.os != 'Windows'
         run: |
           if command -v upx &> /dev/null; then
             upx --best --lzma dist/threads-downloader-cli || true
             upx --best --lzma dist/threads-downloader || true
           fi
-
-      - name: Install and compress with UPX (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          choco install upx -y
-          upx --force --best --lzma dist/threads-downloader-cli.exe
-          upx --force --best --lzma dist/threads-downloader.exe
 
       - name: Rename artifacts
         shell: bash
