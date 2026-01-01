@@ -94,6 +94,11 @@ def ask_int(prompt: str, default: int) -> int:
         print("Please enter a valid integer.")
 
 
+def normalize_threads_url(url: str) -> str:
+    """Normalize Threads URL to use threads.net domain."""
+    return url.replace("threads.com", "threads.net")
+
+
 def main() -> None:
     """Entry-point for the CLI application."""
     print("=" * 30)
@@ -106,7 +111,8 @@ def main() -> None:
         url: str = input("Enter a Threads profile URL (blank to finish): ").strip()
         if not url:
             break
-        urls.append(url)
+        # Normalize URL to threads.net
+        urls.append(normalize_threads_url(url))
 
     if not urls:
         print("No URLs entered – exiting.")

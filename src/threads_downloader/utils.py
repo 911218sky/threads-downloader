@@ -16,8 +16,30 @@ def load_cookies(driver, file_path: str = "cookies.pkl") -> None:
     if not pathlib.Path(file_path).exists():
         return
     with open(file_path, "rb") as f:
-        for ck in pickle.load(f):
+        cookies = pickle.load(f)
+    
+    # Get current domain
+    current_url = driver.current_url
+    current_domain = urlparse(current_url).netloc
+    
+    for ck in cookies:
+        try:
+            # Try to match cookie domain with current domain
+            cookie_domain = ck.get('domain', '')
+            if cookie_domain:
+                # Remove leading dot from domain
+                clean_cookie_domain = cookie_domain.lstrip('.')
+                clean_current_domain = current_domain.lstrip('.')
+                
+                # Skip if domains don't match (threads.net vs threads.com)
+                if clean_cookie_domain not in clean_current_domain and clean_current_domain not in clean_cookie_domain:
+                    continue
+            
             driver.add_cookie(ck)
+        except Exception:
+            # Skip invalid cookies
+            pass
+    
     driver.refresh()
 
 

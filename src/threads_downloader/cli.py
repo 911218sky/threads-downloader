@@ -21,6 +21,11 @@ def get_cookies(save_path: str = "cookies.pkl") -> None:
     print("Cookies saved to", save_path)
     drv.quit()
 
+def normalize_threads_url(url: str) -> str:
+    """Normalize Threads URL to use threads.net domain."""
+    return url.replace("threads.com", "threads.net")
+
+
 def main() -> None:
     """Parse CLI arguments, launch a browser, scrape, and download."""
     ap = argparse.ArgumentParser(description="Fetch media from Threads profiles.")
@@ -40,14 +45,17 @@ def main() -> None:
     ap.add_argument("--cookies_path", default="cookies.pkl", help="Path to cookies file")
     args = ap.parse_args()
 
+    # Normalize URLs to threads.net
+    profile_urls = [normalize_threads_url(url) for url in args.profile]
+
     if not os.path.exists(args.cookies_path):
         get_cookies(args.cookies_path)
         
     drv = build_stealth_driver(args.headless)
-    drv.get("https://www.threads.com/")
+    drv.get("https://www.threads.net/")
     load_cookies(drv, args.cookies_path)
 
-    for url in args.profile:
+    for url in profile_urls:
         drv.get(url)
 
         author = get_author_name(drv)
